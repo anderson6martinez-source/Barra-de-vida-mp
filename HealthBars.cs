@@ -48,9 +48,25 @@ namespace Game
             ultimoGolpe.Clear();
         }
 
+        static bool desactivado;
+
         public override void GuiDraw(ComponentGui componentGui, Camera camera, int drawOrder)
         {
-            if (creaturas == null || camera == null) return;
+            if (desactivado || creaturas == null || camera == null) return;
+            try
+            {
+                Dibujar(camera);
+            }
+            catch (Exception e)
+            {
+                // si algo falla, el mod se apaga solo en vez de dejar la pantalla en negro
+                desactivado = true;
+                Log.Warning("BarraVida desactivada por error: " + e);
+            }
+        }
+
+        void Dibujar(Camera camera)
+        {
 
             Matrix vista = camera.ViewMatrix;
             Vector3 derecha = new Vector3(vista.M11, vista.M21, vista.M31);
