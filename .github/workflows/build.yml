@@ -1,4 +1,4 @@
-name: Compilar mod
+name: Compilar mod multijugador
 
 on:
   push:
@@ -7,10 +7,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        gamever: ["24mp"]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -19,18 +15,26 @@ jobs:
       - name: Verificar DLL
         run: |
           ls -la Libs || true
-          for n in Engine EntitySystem Survivalcraft; do
-            test -f Libs/${n}${{ matrix.gamever }}.dll || { echo "::error::Falta Libs/${n}${{ matrix.gamever }}.dll en el repo"; exit 1; }
+          for n in Engine EntitySystem Survivalcraft mscorlib System System.Core; do
+            test -f Libs/$n.dll || { echo "::error::Falta Libs/$n.dll en el repo"; exit 1; }
           done
-      - name: Compilar
-        run: dotnet build HealthBars.csproj -c Release -o out -p:GameVer=${{ matrix.gamever }}
+      - name: Compilar contra los DLL del juego
+        run: |
+          LINEA=$(dotnet --list-sdks | tail -1)
+          VER=$(echo "$LINEA" | awk '{print $1}')
+          DIR=$(echo "$LINEA" | sed 's/.*\[\(.*\)\]/\1/')
+          CSC="$DIR/$VER/Roslyn/bincore/csc.dll"
+          REFS=""
+          for f in Libs/*.dll; do REFS="$REFS -r:$f"; done
+          mkdir -p out
+          dotnet "$CSC" -nologo -target:library -nostdlib+ -noconfig -langversion:latest -optimize+ -out:out/HealthBars.dll $REFS HealthBars.cs
       - name: Empaquetar .netmod
         run: |
           mkdir pkg
           cp out/HealthBars.dll pkg/
-          sed 's/"ScVersion": *"[^"]*"/"ScVersion": "2.${{ matrix.gamever == '23' && '3' || '4' }}"/' modinfo.json > pkg/modinfo.json
-          cd pkg && zip -r ../BarraVida_${{ matrix.gamever }}.netmod .
+          cp modinfo.json pkg/
+          cd pkg && zip -r ../BarraVida_mp.netmod .
       - uses: actions/upload-artifact@v4
         with:
-          name: BarraVida_${{ matrix.gamever }}
-          path: BarraVida_${{ matrix.gamever }}.netmod
+          name: BarraVida_mp
+          path: BarraVida_mp.netmod
