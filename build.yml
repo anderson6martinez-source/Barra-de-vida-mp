@@ -1,0 +1,36 @@
+name: Compilar mod
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        gamever: ["24mp"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Verificar DLL
+        run: |
+          ls -la Libs || true
+          for n in Engine EntitySystem Survivalcraft; do
+            test -f Libs/${n}${{ matrix.gamever }}.dll || { echo "::error::Falta Libs/${n}${{ matrix.gamever }}.dll en el repo"; exit 1; }
+          done
+      - name: Compilar
+        run: dotnet build HealthBars.csproj -c Release -o out -p:GameVer=${{ matrix.gamever }}
+      - name: Empaquetar .netmod
+        run: |
+          mkdir pkg
+          cp out/HealthBars.dll pkg/
+          sed 's/"ScVersion": *"[^"]*"/"ScVersion": "2.${{ matrix.gamever == '23' && '3' || '4' }}"/' modinfo.json > pkg/modinfo.json
+          cd pkg && zip -r ../BarraVida_${{ matrix.gamever }}.netmod .
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BarraVida_${{ matrix.gamever }}
+          path: BarraVida_${{ matrix.gamever }}.netmod
