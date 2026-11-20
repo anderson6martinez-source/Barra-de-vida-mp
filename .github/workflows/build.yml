@@ -24,13 +24,13 @@ jobs:
           done
       - name: Compilar
         run: dotnet build HealthBars.csproj -c Release -o out -p:GameVer=${{ matrix.gamever }}
-      - name: Empaquetar .scmod
+      - name: Empaquetar .netmod
         run: |
           mkdir pkg
           cp out/HealthBars.dll pkg/
           sed 's/"ScVersion": *"[^"]*"/"ScVersion": "2.${{ matrix.gamever == '23' && '3' || '4' }}"/' modinfo.json > pkg/modinfo.json
-          cd pkg && zip -r ../BarraVida_${{ matrix.gamever }}.scmod .
+          cd pkg && zip -r ../BarraVida_${{ matrix.gamever }}.netmod .
       - uses: actions/upload-artifact@v4
         with:
           name: BarraVida_${{ matrix.gamever }}
-          path: BarraVida_${{ matrix.gamever }}.scmod
+          path: BarraVida_${{ matrix.gamever }}.netmod
