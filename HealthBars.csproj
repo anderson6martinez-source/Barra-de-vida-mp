@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <GameVer Condition="'$(GameVer)' == ''">24</GameVer>
+    <TargetFramework Condition="'$(GameVer)' == '24'">net10.0</TargetFramework>
+    <TargetFramework Condition="'$(GameVer)' != '24'">netstandard2.0</TargetFramework>
+    <AssemblyName>HealthBars</AssemblyName>
+    <RootNamespace>Game</RootNamespace>
+    <LangVersion>latest</LangVersion>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <Nullable>disable</Nullable>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="HealthBars.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Libs/Engine$(GameVer).dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Libs/EntitySystem$(GameVer).dll">
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Libs/Survivalcraft$(GameVer).dll">
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+</Project>

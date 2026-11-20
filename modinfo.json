@@ -1,0 +1,11 @@
+{
+  "Name": "Barra de vida",
+  "Version": "1.0.0",
+  "ApiVersion": "1.9",
+  "Description": "Muestra una barra de vida sobre la cabeza de las criaturas.",
+  "ScVersion": "2.4",
+  "PackageName": "com.barravida.mod",
+  "Author": "",
+  "Link": "",
+  "Packages": []
+}
